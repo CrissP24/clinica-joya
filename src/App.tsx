@@ -9,6 +9,9 @@ import Login from "@/pages/Login";
 import AdminDashboard from "@/pages/dashboards/AdminDashboard";
 import DoctorDashboard from "@/pages/dashboards/DoctorDashboard";
 import PatientDashboard from "@/pages/dashboards/PatientDashboard";
+import UsersManagement from "@/pages/admin/Users";
+import DoctorPatients from "@/pages/doctor/Patients";
+import DoctorAppointments from "@/pages/doctor/Appointments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +60,16 @@ const App = () => (
               </ProtectedRoute>
             } />
             
+            <Route path="/admin/users" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['admin']}>
+                  <DashboardLayout>
+                    <UsersManagement />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
             <Route path="/doctor" element={
               <ProtectedRoute>
                 <RoleRoute allowedRoles={['doctor']}>
@@ -67,11 +80,21 @@ const App = () => (
               </ProtectedRoute>
             } />
             
-            <Route path="/patient" element={
+            <Route path="/doctor/patients" element={
               <ProtectedRoute>
-                <RoleRoute allowedRoles={['patient']}>
+                <RoleRoute allowedRoles={['doctor']}>
                   <DashboardLayout>
-                    <PatientDashboard />
+                    <DoctorPatients />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/doctor/appointments" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['doctor']}>
+                  <DashboardLayout>
+                    <DoctorAppointments />
                   </DashboardLayout>
                 </RoleRoute>
               </ProtectedRoute>
