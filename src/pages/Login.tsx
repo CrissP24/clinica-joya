@@ -75,7 +75,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/70 flex items-center justify-center">
           <div className="text-center text-white p-8">
             <Stethoscope className="h-16 w-16 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-4">MediClinic</h1>
+            <h1 className="text-4xl font-bold mb-4">CandyHoppe</h1>
             <p className="text-xl opacity-90">Sistema Integral de Gestión Médica</p>
             <p className="text-sm opacity-75 mt-2">Gestión moderna para consultorios médicos</p>
           </div>

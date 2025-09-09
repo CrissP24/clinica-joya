@@ -23,10 +23,15 @@ import {
   ClipboardList,
   Activity,
   LogOut,
-  Stethoscope
+  Stethoscope,
+  Bell
 } from 'lucide-react';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const menuItems = {
   admin: [
@@ -57,6 +62,7 @@ export function MedicalSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const currentPath = location.pathname;
 
   if (!user) return null;
@@ -117,7 +123,84 @@ export function MedicalSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         
-        <div className="mt-auto p-4">
+        <div className="mt-auto p-4 space-y-2">
+          {/* Notifications */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full medical-transition relative"
+                size={isCollapsed ? "icon" : "default"}
+              >
+                <Bell className="h-4 w-4" />
+                {!isCollapsed && <span className="ml-2">Notificaciones</span>}
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold">Notificaciones</h4>
+                  {unreadCount > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={markAllAsRead}
+                      className="text-xs"
+                    >
+                      Marcar todas como leídas
+                    </Button>
+                  )}
+                </div>
+                <ScrollArea className="h-64">
+                  <div className="space-y-2">
+                    {notifications.length > 0 ? (
+                      notifications
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .slice(0, 10)
+                        .map((notification) => (
+                          <div 
+                            key={notification.id} 
+                            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                              notification.isRead 
+                                ? 'bg-background hover:bg-secondary' 
+                                : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                            }`}
+                            onClick={() => !notification.isRead && markAsRead(notification.id)}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm">{notification.title}</h5>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {notification.message}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  {new Date(notification.createdAt).toLocaleString('es-ES')}
+                                </p>
+                              </div>
+                              {!notification.isRead && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No tienes notificaciones</p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Logout */}
           <Button 
             variant="outline" 
             onClick={logout} 

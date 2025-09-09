@@ -6,16 +6,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Users, Plus, Search, Heart, FileText, Calendar, Eye } from 'lucide-react';
+import { Users, Plus, Search, Heart, FileText, Calendar, Eye, Stethoscope } from 'lucide-react';
 import { localStorageService, Patient, MedicalRecord } from '@/services/localStorageService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import ClinicalHistory from '@/components/medical/ClinicalHistory';
+import { DiagnosisForm } from '@/components/medical/DiagnosisForm';
 
 const DoctorPatients = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPatientDialogOpen, setIsPatientDialogOpen] = useState(false);
   const [isRecordDialogOpen, setIsRecordDialogOpen] = useState(false);
+  const [isDiagnosisDialogOpen, setIsDiagnosisDialogOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [patientRecords, setPatientRecords] = useState<MedicalRecord[]>([]);
   const { user } = useAuth();
@@ -391,6 +394,17 @@ const DoctorPatients = () => {
                       <FileText className="h-4 w-4 mr-1" />
                       Nueva Consulta
                     </Button>
+                    <Button 
+                      size="sm" 
+                      className="medical-gradient" 
+                      onClick={() => {
+                        setSelectedPatient(patient);
+                        setIsDiagnosisDialogOpen(true);
+                      }}
+                    >
+                      <Stethoscope className="h-4 w-4 mr-1" />
+                      Diagnóstico
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -420,42 +434,13 @@ const DoctorPatients = () => {
           </CardHeader>
           <CardContent>
             {selectedPatient ? (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {patientRecords.length > 0 ? (
-                  patientRecords
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((record) => (
-                      <div key={record.id} className="p-4 border rounded-lg bg-background">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium">{record.reason}</h4>
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(record.date).toLocaleDateString('es-ES')}
-                          </span>
-                        </div>
-                        
-                        <div className="text-sm space-y-2">
-                          {record.symptoms && (
-                            <p><strong>Síntomas:</strong> {record.symptoms}</p>
-                          )}
-                          <p><strong>Diagnóstico:</strong> {record.diagnosis}</p>
-                          {record.treatment && (
-                            <p><strong>Tratamiento:</strong> {record.treatment}</p>
-                          )}
-                          {record.prescriptions && (
-                            <p><strong>Prescripciones:</strong> {record.prescriptions}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Dr. {record.doctorName}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-center text-muted-foreground py-8">
-                    No hay registros médicos para este paciente
-                  </p>
-                )}
-              </div>
+              <ClinicalHistory 
+                patient={selectedPatient} 
+                onRecordAdded={() => {
+                  const records = localStorageService.getRecordsByPatient(selectedPatient.id);
+                  setPatientRecords(records);
+                }}
+              />
             ) : (
               <p className="text-center text-muted-foreground py-8">
                 Selecciona un paciente para ver su historia clínica
@@ -641,6 +626,34 @@ const DoctorPatients = () => {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diagnosis Form Dialog */}
+      <Dialog open={isDiagnosisDialogOpen} onOpenChange={setIsDiagnosisDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Registrar Diagnóstico Médico</DialogTitle>
+            <DialogDescription>
+              {selectedPatient && `Paciente: ${selectedPatient.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <DiagnosisForm
+              patientId={selectedPatient.id}
+              patientName={selectedPatient.name}
+              onDiagnosisAdded={() => {
+                setIsDiagnosisDialogOpen(false);
+                const records = localStorageService.getRecordsByPatient(selectedPatient.id);
+                setPatientRecords(records);
+                toast({
+                  title: "Diagnóstico registrado",
+                  description: "El diagnóstico se ha registrado correctamente",
+                });
+              }}
+              onCancel={() => setIsDiagnosisDialogOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

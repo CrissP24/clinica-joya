@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import Login from "@/pages/Login";
 import AdminDashboard from "@/pages/dashboards/AdminDashboard";
@@ -42,10 +43,11 @@ const RoleRoute = ({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <NotificationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
             
@@ -100,6 +102,119 @@ const App = () => (
               </ProtectedRoute>
             } />
             
+            <Route path="/patient" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['patient']}>
+                  <DashboardLayout>
+                    <PatientDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin additional routes */}
+            <Route path="/admin/appointments" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['admin']}>
+                  <DashboardLayout>
+                    <AdminDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/reports" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['admin']}>
+                  <DashboardLayout>
+                    <AdminDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/admin/settings" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['admin']}>
+                  <DashboardLayout>
+                    <AdminDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            {/* Doctor additional routes */}
+            <Route path="/doctor/records" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['doctor']}>
+                  <DashboardLayout>
+                    <DoctorDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/doctor/certificates" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['doctor']}>
+                  <DashboardLayout>
+                    <DoctorDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/doctor/schedule" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['doctor']}>
+                  <DashboardLayout>
+                    <DoctorDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            {/* Patient additional routes */}
+            <Route path="/patient/history" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['patient']}>
+                  <DashboardLayout>
+                    <PatientDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/patient/appointments" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['patient']}>
+                  <DashboardLayout>
+                    <PatientDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/patient/certificates" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['patient']}>
+                  <DashboardLayout>
+                    <PatientDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/patient/profile" element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={['patient']}>
+                  <DashboardLayout>
+                    <PatientDashboard />
+                  </DashboardLayout>
+                </RoleRoute>
+              </ProtectedRoute>
+            } />
+            
             {/* Root redirect based on user role */}
             <Route path="/" element={
               <ProtectedRoute>
@@ -111,7 +226,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
+        </TooltipProvider>
+      </NotificationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

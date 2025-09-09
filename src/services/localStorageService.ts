@@ -34,8 +34,14 @@ export interface MedicalRecord {
   diagnosis: string;
   cie10Code?: string;
   treatment: string;
-  prescriptions: string;
+  prescriptions?: string;
   labResults?: string;
+  personalHistory?: string; // Antecedentes personales
+  familyHistory?: string; // Antecedentes familiares
+  allergies?: string; // Alergias
+  observations?: string; // Observaciones adicionales
+  followUpDate?: string; // Fecha de seguimiento
+  urgency?: 'low' | 'medium' | 'high'; // Nivel de urgencia
   notes?: string;
   createdAt: string;
 }
@@ -71,6 +77,33 @@ export interface MedicalCertificate {
   createdAt: string;
 }
 
+export interface LaboratoryExam {
+  id: string;
+  patientId: string;
+  patientName: string;
+  doctorId: string;
+  doctorName: string;
+  examType: string;
+  examName: string;
+  date: string;
+  results: string;
+  fileData?: string; // Base64 encoded file
+  fileName?: string;
+  fileType?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'appointment' | 'certificate' | 'exam' | 'system';
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 export interface SystemUser {
   id: string;
   name: string;
@@ -90,7 +123,9 @@ class LocalStorageService {
     RECORDS: 'medical_records',
     APPOINTMENTS: 'medical_appointments',
     CERTIFICATES: 'medical_certificates',
-    USERS: 'medical_users'
+    USERS: 'medical_users',
+    EXAMS: 'medical_laboratory_exams',
+    NOTIFICATIONS: 'medical_notifications'
   };
 
   // Generic methods
@@ -207,6 +242,34 @@ class LocalStorageService {
     return doctorId ? appointments.filter(a => a.doctorId === doctorId) : appointments;
   }
 
+  getAvailableTimeSlots(doctorId: string, date: string): string[] {
+    const allTimeSlots = [
+      '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+      '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+      '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+      '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
+    ];
+
+    const existingAppointments = this.getAppointments().filter(
+      a => a.doctorId === doctorId && 
+           a.date === date && 
+           (a.status === 'confirmed' || a.status === 'pending')
+    );
+
+    const bookedTimes = existingAppointments.map(a => a.time);
+    return allTimeSlots.filter(time => !bookedTimes.includes(time));
+  }
+
+  isTimeSlotAvailable(doctorId: string, date: string, time: string): boolean {
+    const existingAppointment = this.getAppointments().find(
+      a => a.doctorId === doctorId && 
+           a.date === date && 
+           a.time === time &&
+           (a.status === 'confirmed' || a.status === 'pending')
+    );
+    return !existingAppointment;
+  }
+
   addAppointment(appointment: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>): Appointment {
     const appointments = this.getAppointments();
     const newAppointment: Appointment = {
@@ -258,6 +321,88 @@ class LocalStorageService {
     certificates.push(newCertificate);
     this.saveToStorage(this.KEYS.CERTIFICATES, certificates);
     return newCertificate;
+  }
+
+  // Laboratory Exams
+  getLaboratoryExams(): LaboratoryExam[] {
+    return this.getFromStorage<LaboratoryExam>(this.KEYS.EXAMS);
+  }
+
+  getExamsByPatient(patientId: string): LaboratoryExam[] {
+    return this.getLaboratoryExams().filter(e => e.patientId === patientId);
+  }
+
+  getExamsByDoctor(doctorId: string): LaboratoryExam[] {
+    return this.getLaboratoryExams().filter(e => e.doctorId === doctorId);
+  }
+
+  addLaboratoryExam(exam: Omit<LaboratoryExam, 'id' | 'createdAt'>): LaboratoryExam {
+    const exams = this.getLaboratoryExams();
+    const newExam: LaboratoryExam = {
+      ...exam,
+      id: this.generateId(),
+      createdAt: new Date().toISOString()
+    };
+    exams.push(newExam);
+    this.saveToStorage(this.KEYS.EXAMS, exams);
+    return newExam;
+  }
+
+  updateLaboratoryExam(id: string, updates: Partial<LaboratoryExam>): LaboratoryExam | null {
+    const exams = this.getLaboratoryExams();
+    const index = exams.findIndex(e => e.id === id);
+    if (index === -1) return null;
+
+    exams[index] = {
+      ...exams[index],
+      ...updates,
+      id
+    };
+    this.saveToStorage(this.KEYS.EXAMS, exams);
+    return exams[index];
+  }
+
+  // Notifications
+  getNotifications(): Notification[] {
+    return this.getFromStorage<Notification>(this.KEYS.NOTIFICATIONS);
+  }
+
+  getNotificationsByUser(userId: string): Notification[] {
+    return this.getNotifications().filter(n => n.userId === userId);
+  }
+
+  getUnreadNotificationsByUser(userId: string): Notification[] {
+    return this.getNotificationsByUser(userId).filter(n => !n.isRead);
+  }
+
+  addNotification(notification: Omit<Notification, 'id' | 'createdAt'>): Notification {
+    const notifications = this.getNotifications();
+    const newNotification: Notification = {
+      ...notification,
+      id: this.generateId(),
+      createdAt: new Date().toISOString()
+    };
+    notifications.push(newNotification);
+    this.saveToStorage(this.KEYS.NOTIFICATIONS, notifications);
+    return newNotification;
+  }
+
+  markNotificationAsRead(id: string): boolean {
+    const notifications = this.getNotifications();
+    const index = notifications.findIndex(n => n.id === id);
+    if (index === -1) return false;
+
+    notifications[index].isRead = true;
+    this.saveToStorage(this.KEYS.NOTIFICATIONS, notifications);
+    return true;
+  }
+
+  markAllNotificationsAsRead(userId: string): void {
+    const notifications = this.getNotifications();
+    const updatedNotifications = notifications.map(n => 
+      n.userId === userId ? { ...n, isRead: true } : n
+    );
+    this.saveToStorage(this.KEYS.NOTIFICATIONS, updatedNotifications);
   }
 
   // System Users
@@ -359,6 +504,58 @@ class LocalStorageService {
       ];
 
       demoUsers.forEach(user => this.addSystemUser(user));
+    }
+
+    // Demo laboratory exams
+    if (this.getLaboratoryExams().length === 0) {
+      const demoExams: Omit<LaboratoryExam, 'id' | 'createdAt'>[] = [
+        {
+          patientId: this.getPatients()[0]?.id || '1',
+          patientName: 'María González',
+          doctorId: '2',
+          doctorName: 'Dr. Carlos Rodríguez',
+          examType: 'Hematología',
+          examName: 'Hemograma Completo',
+          date: new Date().toISOString().split('T')[0],
+          results: 'Hemoglobina: 14.2 g/dL (Normal)\nHematocrito: 42% (Normal)\nLeucocitos: 7,500/μL (Normal)\nPlaquetas: 250,000/μL (Normal)',
+          notes: 'Resultados dentro de parámetros normales'
+        },
+        {
+          patientId: this.getPatients()[1]?.id || '2',
+          patientName: 'Carlos López',
+          doctorId: '2',
+          doctorName: 'Dr. Carlos Rodríguez',
+          examType: 'Bioquímica',
+          examName: 'Glicemia en Ayunas',
+          date: new Date().toISOString().split('T')[0],
+          results: 'Glicemia: 145 mg/dL (Elevada)\nHbA1c: 7.2% (Elevada)',
+          notes: 'Valores elevados, requiere seguimiento'
+        }
+      ];
+
+      demoExams.forEach(exam => this.addLaboratoryExam(exam));
+    }
+
+    // Demo notifications
+    if (this.getNotifications().length === 0) {
+      const demoNotifications: Omit<Notification, 'id' | 'createdAt'>[] = [
+        {
+          userId: '2', // Doctor
+          type: 'appointment',
+          title: 'Nueva Cita Programada',
+          message: 'Tienes una nueva cita con María González mañana a las 10:00',
+          isRead: false
+        },
+        {
+          userId: '3', // Patient
+          type: 'certificate',
+          title: 'Certificado Médico Disponible',
+          message: 'Tu certificado médico está listo para descargar',
+          isRead: false
+        }
+      ];
+
+      demoNotifications.forEach(notification => this.addNotification(notification));
     }
   }
 
