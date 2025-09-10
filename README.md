@@ -1,4 +1,4 @@
-# MediClinic - Sistema de Gestión Médica
+Candy Hoppe - Sistema de Gestión Médica
 
 Sistema completo de gestión para consultorios médicos desarrollado con React, TypeScript y shadcn/ui. Incluye gestión de pacientes, citas médicas, historiales clínicos, certificados médicos y más.
 
