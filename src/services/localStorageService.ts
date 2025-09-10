@@ -108,6 +108,7 @@ export interface SystemUser {
   id: string;
   name: string;
   email: string;
+  password: string;
   role: 'admin' | 'doctor' | 'patient';
   phone?: string;
   specialization?: string;
@@ -481,21 +482,24 @@ class LocalStorageService {
         {
           name: 'Dr. Ana García',
           email: 'admin@clinica.com',
+          password: 'admin123',
           role: 'admin',
           phone: '+34 600 123 456',
           isActive: true
         },
         {
-          name: 'Dr. Carlos Rodríguez',
-          email: 'doctor@clinica.com',
+          name: 'Dr. Candy Maribel Hoppe Castro',
+          email: 'dracandyhoppe@gmail.com',
+          password: 'doctor123',
           role: 'doctor',
-          phone: '+34 600 789 012',
+          phone: '+593 99 715 8494',
           specialization: 'Medicina General',
           isActive: true
         },
         {
           name: 'María López',
           email: 'paciente@email.com',
+          password: 'patient123',
           role: 'patient',
           phone: '+34 600 345 678',
           cedula: '12345678X',
@@ -513,7 +517,7 @@ class LocalStorageService {
           patientId: this.getPatients()[0]?.id || '1',
           patientName: 'María González',
           doctorId: '2',
-          doctorName: 'Dr. Carlos Rodríguez',
+          doctorName: 'Dr. Candy Maribel Hoppe Castro',
           examType: 'Hematología',
           examName: 'Hemograma Completo',
           date: new Date().toISOString().split('T')[0],
@@ -524,7 +528,7 @@ class LocalStorageService {
           patientId: this.getPatients()[1]?.id || '2',
           patientName: 'Carlos López',
           doctorId: '2',
-          doctorName: 'Dr. Carlos Rodríguez',
+          doctorName: 'Dr. Candy Maribel Hoppe Castro',
           examType: 'Bioquímica',
           examName: 'Glicemia en Ayunas',
           date: new Date().toISOString().split('T')[0],

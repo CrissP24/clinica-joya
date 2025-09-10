@@ -25,23 +25,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Demo users for testing - these will be replaced by localStorageService
-const demoUsers: User[] = [
+const demoUsers: (User & { password: string })[] = [
   {
     id: '1',
     name: 'Dr. Ana García',
     email: 'admin@clinica.com',
     role: 'admin',
     phone: '+34 600 123 456',
-    isActive: true
+    isActive: true,
+    password: 'admin123'
   },
   {
     id: '2',
-    name: 'Dr. Carlos Rodríguez',
-    email: 'doctor@clinica.com',
+    name: 'Dr. Candy Maribel Hoppe Castro',
+    email: 'dracandyhoppe@gmail.com',
     role: 'doctor',
-    phone: '+34 600 789 012',
+    phone: '+593 99 715 8494',
     specialization: 'Medicina General',
-    isActive: true
+    isActive: true,
+    password: 'doctor123'
   },
   {
     id: '3',
@@ -50,7 +52,8 @@ const demoUsers: User[] = [
     role: 'patient',
     phone: '+34 600 345 678',
     cedula: '12345678X',
-    isActive: true
+    isActive: true,
+    password: 'patient123'
   }
 ];
 
@@ -75,7 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       foundUser = demoUsers.find(u => u.email === email);
     }
     
-    if (foundUser && password === 'demo123') {
+    // Check password
+    if (foundUser && foundUser.password === password) {
       const userToSet: User = {
         id: foundUser.id,
         name: foundUser.name,

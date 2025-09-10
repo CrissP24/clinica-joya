@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Users, FileText, Activity, Clock, CheckCircle, Bell } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { localStorageService, Appointment, MedicalRecord, MedicalCertificate } from '@/services/localStorageService';
+import { localStorageService, Appointment, MedicalRecord, MedicalCertificate, Patient } from '@/services/localStorageService';
 import { Button } from '@/components/ui/button';
 import CertificateGenerator from '@/components/medical/CertificateGenerator';
 
@@ -15,24 +15,27 @@ const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      loadDoctorData();
-    }
-  }, [user]);
-
-  const loadDoctorData = () => {
+  const loadDoctorData = useCallback(() => {
     if (!user) return;
     
     const doctorAppointments = localStorageService.getAppointmentsByDoctor(user.id);
     const doctorRecords = localStorageService.getRecordsByDoctor(user.id);
     const doctorCertificates = localStorageService.getCertificatesByDoctor(user.id);
+    const allPatients = localStorageService.getPatients();
     
     setAppointments(doctorAppointments);
     setRecords(doctorRecords);
     setCertificates(doctorCertificates);
-  };
+    setPatients(allPatients);
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadDoctorData();
+    }
+  }, [user, loadDoctorData]);
 
   const todayAppointments = appointments.filter(apt => 
     apt.date === new Date().toISOString().split('T')[0] && 
@@ -84,12 +87,15 @@ const DoctorDashboard = () => {
   const recentPatients = records
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3)
-    .map(record => ({
-      id: record.patientId,
-      name: record.patientName,
-      lastVisit: new Date(record.date).toLocaleDateString('es-ES'),
-      diagnosis: record.diagnosis
-    }));
+    .map(record => {
+      const patient = patients.find(p => p.id === record.patientId);
+      return {
+        id: record.patientId,
+        name: patient?.name || 'Paciente desconocido',
+        lastVisit: new Date(record.date).toLocaleDateString('es-ES'),
+        diagnosis: record.diagnosis
+      };
+    });
 
   const getStatusBadge = (status: Appointment['status']) => {
     const styles = {
@@ -303,10 +309,12 @@ const DoctorDashboard = () => {
                 {records.length > 0 ? (
                   records
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((record) => (
+                    .map((record) => {
+                      const patient = patients.find(p => p.id === record.patientId);
+                      return (
                       <div key={record.id} className="p-4 border rounded-lg bg-secondary/50">
                         <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-semibold">{record.patientName}</h3>
+                          <h3 className="font-semibold">{patient?.name || 'Paciente desconocido'}</h3>
                           <span className="text-sm text-muted-foreground">
                             {new Date(record.date).toLocaleDateString('es-ES')}
                           </span>
@@ -319,7 +327,8 @@ const DoctorDashboard = () => {
                           )}
                         </div>
                       </div>
-                    ))
+                      );
+                    })
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />

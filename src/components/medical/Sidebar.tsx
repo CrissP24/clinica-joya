@@ -24,7 +24,8 @@ import {
   Activity,
   LogOut,
   Stethoscope,
-  Bell
+  Bell,
+  BarChart3
 } from 'lucide-react';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -37,8 +38,11 @@ const menuItems = {
   admin: [
     { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
     { title: 'Usuarios', url: '/admin/users', icon: Users },
+    { title: 'Pacientes', url: '/admin/patients', icon: UserCheck },
     { title: 'Citas Médicas', url: '/admin/appointments', icon: Calendar },
-    { title: 'Reportes', url: '/admin/reports', icon: FileText },
+    { title: 'Historiales', url: '/admin/records', icon: ClipboardList },
+    { title: 'Certificados', url: '/admin/certificates', icon: FileText },
+    { title: 'Reportes', url: '/admin/reports', icon: BarChart3 },
     { title: 'Configuración', url: '/admin/settings', icon: Settings },
   ],
   doctor: [
@@ -72,11 +76,11 @@ export function MedicalSidebar() {
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary text-primary-foreground font-medium medical-shadow" 
-      : "hover:bg-secondary medical-transition";
+      ? "bg-blue-100 text-black font-medium border-r-2 border-blue-600" 
+      : "text-black hover:bg-blue-50 hover:text-blue-800 transition-colors duration-200";
 
   return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-60"} collapsible="icon">
+    <Sidebar className={`${isCollapsed ? "w-14" : "w-60"} sidebar-visible`} collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
       
       <div className="p-4 border-b border-border">
@@ -88,8 +92,7 @@ export function MedicalSidebar() {
             <div>
               <h2 className="font-semibold text-sm">MediClinic</h2>
               <p className="text-xs text-muted-foreground">
-                {user.role === 'admin' ? 'Administrador' : 
-                 user.role === 'doctor' ? 'Doctor' : 'Paciente'}
+                Consultorio Hoppe
               </p>
             </div>
           )}

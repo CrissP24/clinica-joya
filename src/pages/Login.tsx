@@ -7,11 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Stethoscope, Mail, Lock, User, Users, Heart } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import medicalHero from '@/assets/medical-hero.jpg';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('dracandyhoppe@gmail.com');
+  const [password, setPassword] = useState('doctor123');
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, user } = useAuth();
   const { toast } = useToast();
@@ -46,18 +45,21 @@ const Login = () => {
     {
       role: 'Administrador',
       email: 'admin@clinica.com',
+      password: 'admin123',
       icon: User,
       gradient: 'from-blue-500 to-blue-600'
     },
     {
       role: 'Doctor',
-      email: 'doctor@clinica.com',
+      email: 'dracandyhoppe@gmail.com',
+      password: 'doctor123',
       icon: Users,
       gradient: 'from-green-500 to-green-600'
     },
     {
       role: 'Paciente',
       email: 'paciente@email.com',
+      password: 'patient123',
       icon: Heart,
       gradient: 'from-purple-500 to-purple-600'
     }
@@ -65,19 +67,14 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left side - Hero Image */}
-      <div className="hidden md:flex md:flex-1 relative">
-        <img 
-          src={medicalHero} 
-          alt="Medical Clinic" 
-          className="w-full h-full object-cover"
-        />
+      {/* Left side - Hero Section */}
+      <div className="hidden md:flex md:flex-1 relative bg-gradient-to-br from-blue-600 to-blue-800">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/70 flex items-center justify-center">
           <div className="text-center text-white p-8">
             <Stethoscope className="h-16 w-16 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold mb-4">CandyHoppe</h1>
-            <p className="text-xl opacity-90">Sistema Integral de Gestión Médica</p>
-            <p className="text-sm opacity-75 mt-2">Gestión moderna para consultorios médicos</p>
+            <h1 className="text-4xl font-bold mb-4">MediClinic</h1>
+            <p className="text-xl opacity-90">Consultorio Hoppe</p>
+            <p className="text-sm opacity-75 mt-2">Dr. Candy Maribel Hoppe Castro</p>
           </div>
         </div>
       </div>
@@ -93,12 +90,13 @@ const Login = () => {
               </div>
               <h1 className="text-2xl font-bold">MediClinic</h1>
             </div>
+            <p className="text-sm text-muted-foreground">Consultorio Hoppe</p>
           </div>
-          
-          <Card className="medical-card border-0">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-              <CardDescription>
+
+          <Card>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl text-center">Iniciar Sesión</CardTitle>
+              <CardDescription className="text-center">
                 Accede a tu área personalizada del sistema médico
               </CardDescription>
             </CardHeader>
@@ -148,7 +146,7 @@ const Login = () => {
               {/* Demo accounts */}
               <div className="mt-6 pt-6 border-t border-border">
                 <p className="text-sm text-muted-foreground text-center mb-4">
-                  Cuentas de demostración (contraseña: demo123)
+                  Cuentas de demostración
                 </p>
                 <div className="grid gap-2">
                   {demoLogins.map((demo) => (
@@ -158,7 +156,7 @@ const Login = () => {
                       size="sm"
                       onClick={() => {
                         setEmail(demo.email);
-                        setPassword('demo123');
+                        setPassword(demo.password);
                       }}
                       className="justify-start medical-transition"
                     >

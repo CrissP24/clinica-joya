@@ -193,8 +193,8 @@ const CertificateGenerator: React.FC<CertificateGeneratorProps> = ({
       <body>
         <div class="header">
           <div class="clinic-name">CLÍNICA MEDICLINIC</div>
-          <div class="clinic-subtitle">Centro Médico Especializado</div>
-          <div class="clinic-subtitle">Tel: +34 600 123 456 | Email: info@mediclinic.com</div>
+          <div class="clinic-subtitle">Consultorio Hoppe</div>
+          <div class="clinic-subtitle">Tel: +593 99 715 8494 | Email: dracandyhoppe@gmail.com</div>
         </div>
 
         <div class="certificate-title">${certificateTitle.toUpperCase()}</div>
