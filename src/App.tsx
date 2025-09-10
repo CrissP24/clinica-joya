@@ -23,6 +23,10 @@ import DoctorAppointments from "@/pages/doctor/Appointments";
 import DoctorRecords from "@/pages/doctor/Records";
 import DoctorCertificates from "@/pages/doctor/Certificates";
 import DoctorSchedule from "@/pages/doctor/Schedule";
+import PatientHistory from "@/pages/patient/History";
+import PatientAppointments from "@/pages/patient/Appointments";
+import PatientCertificates from "@/pages/patient/Certificates";
+import PatientProfile from "@/pages/patient/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -213,6 +217,46 @@ const App = () => (
                   <RoleRoute allowedRoles={['patient']}>
                     <DashboardLayout>
                       <PatientDashboard />
+                    </DashboardLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient/history" element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={['patient']}>
+                    <DashboardLayout>
+                      <PatientHistory />
+                    </DashboardLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient/appointments" element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={['patient']}>
+                    <DashboardLayout>
+                      <PatientAppointments />
+                    </DashboardLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient/certificates" element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={['patient']}>
+                    <DashboardLayout>
+                      <PatientCertificates />
+                    </DashboardLayout>
+                  </RoleRoute>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient/profile" element={
+                <ProtectedRoute>
+                  <RoleRoute allowedRoles={['patient']}>
+                    <DashboardLayout>
+                      <PatientProfile />
                     </DashboardLayout>
                   </RoleRoute>
                 </ProtectedRoute>

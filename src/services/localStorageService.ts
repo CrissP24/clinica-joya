@@ -43,6 +43,11 @@ export interface MedicalRecord {
   followUpDate?: string; // Fecha de seguimiento
   urgency?: 'low' | 'medium' | 'high'; // Nivel de urgencia
   notes?: string;
+  // Additional fields for better patient experience
+  description?: string; // Descripción de la consulta
+  specialty?: string; // Especialidad del doctor
+  medications?: string[]; // Medicamentos prescritos
+  status?: 'active' | 'inactive' | 'pending'; // Estado del tratamiento
   createdAt: string;
 }
 
@@ -113,6 +118,11 @@ export interface SystemUser {
   phone?: string;
   specialization?: string;
   cedula?: string;
+  address?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  dateOfBirth?: string;
+  notes?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -437,6 +447,10 @@ class LocalStorageService {
     };
     this.saveToStorage(this.KEYS.USERS, users);
     return users[index];
+  }
+
+  updateUser(user: SystemUser): SystemUser | null {
+    return this.updateSystemUser(user.id, user);
   }
 
   // Initialize with demo data
